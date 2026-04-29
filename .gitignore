@@ -1,0 +1,8 @@
+venv/
+output_app/
+__pycache__/
+tools/__pycache__/
+*.log
+*.pyc
+Team_Code_Snippets/
+split.py
