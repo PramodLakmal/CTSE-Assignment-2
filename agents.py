@@ -3,6 +3,7 @@ from langchain_ollama import ChatOllama
 from langchain_core.messages import SystemMessage, HumanMessage
 
 from tools.pm_tool import write_spec_file
+from tools.dev_tool import generate_application
 # TODO: Import Designer, Developer, and QA tools here
 
 llm = ChatOllama(model="qwen2.5-coder", temperature=0.2)
@@ -36,8 +37,24 @@ def designer_node(state: dict) -> dict:
 
 def developer_node(state: dict) -> dict:
     """Agent 3: Writes HTML/JS logic."""
-    # TODO: Implement Developer Agent
-    pass
+    print("--- [Agent 3: Developer] Writing HTML and JS logic ---")
+    spec = state["technical_spec"]
+    css = state.get("css_design", "")
+    
+    prompt = SystemMessage(content=(
+        "You are a Senior Frontend Developer. Write the complete, fully functional index.html file "
+        "including all necessary HTML structure and Javascript logic to perfectly satisfy the spec. "
+        "CRITICAL: Do NOT use placeholders like '// Add logic here'. You must write the actual working Javascript code to make the app fully functional. "
+        "CRITICAL: You must link the stylesheet inside the <head> using <link rel='stylesheet' href='style.css'>. "
+        "Output ONLY the raw HTML code."
+    ))
+    human_msg = HumanMessage(content=f"Spec:\n{spec}\n\nExisting CSS:\n{css}")
+    
+    response = llm.invoke([prompt, human_msg])
+    html_content = response.content.strip()
+    
+    generate_application(html_content)
+    return {"html_js_code": html_content}
 
 def qa_tester_node(state: dict) -> dict:
     """Agent 4: Audits the final code."""
