@@ -16,6 +16,23 @@ def test_write_spec_file():
     assert os.path.exists("output_app/SPEC.md")
 
 # TODO: Add tests for Designer, Developer, and QA tools here
+#QA Tool Test
+def test_run_code_audit():
+    with open("output_app/index.html", "w") as f:
+        f.write("<!DOCTYPE html><html><head><link rel='stylesheet' href='style.css'></head><body></body></html>")
+    with open("output_app/style.css", "w") as f:
+        f.write("body { color: red; }")
+        
+    audit = run_code_audit("output_app/index.html", "output_app/style.css")
+    assert audit["score"] == 100
+    assert audit["status"] == "PASS"
+    
+    with open("output_app/index.html", "w") as f:
+        f.write("bad html no doctype")
+        
+    audit2 = run_code_audit("output_app/index.html", "output_app/style.css")
+    assert audit2["score"] < 100
+    assert len(audit2["issues"]) > 0
 
 def test_generate_application():
     html = "<html><body><h1>Hi</h1></body></html>"
