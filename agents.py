@@ -58,5 +58,20 @@ def developer_node(state: dict) -> dict:
 
 def qa_tester_node(state: dict) -> dict:
     """Agent 4: Audits the final code."""
-    # TODO: Implement QA Tester Agent
-    pass
+    print("--- [Agent 4: QA Tester] Auditing generated output ---")
+    
+    audit_results = run_code_audit("output_app/index.html", "output_app/style.css")
+    
+    prompt = SystemMessage(content=(
+        "You are a QA Lead. Review the automated audit results of the generated code "
+        "and provide a final release statement. Keep it to 1 paragraph."
+    ))
+    human_msg = HumanMessage(content=f"Audit Results: {json.dumps(audit_results)}")
+    
+    try:
+        response = llm.invoke([prompt, human_msg])
+        qa_statement = response.content.strip()
+    except Exception as e:
+        qa_statement = f"QA Error: {e}"
+        
+    return {"qa_status": {"audit": audit_results, "statement": qa_statement}}
